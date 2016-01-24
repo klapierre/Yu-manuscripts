@@ -22,4 +22,22 @@ summary(fitModel, standardized=T, rsq=T)
 coef(fitModel)
 semPaths(fitModel, 'std')
 
+###try running seperate models for low and high N additions, because divergent responses were seen
 
+#low N addition model
+lowData <- meanData%>%
+  filter(treatment!=1.6)
+
+lowModel <- sem(pathModel, data=lowData)
+summary(lowModel, standardized=T, rsq=T)
+coef(lowModel)
+semPaths(lowModel, 'std')
+
+#high N addition model
+highData <- meanData%>%
+  filter(treatment!=0.4)
+
+highModel <- sem(pathModel, data=highData)
+summary(highModel, standardized=T, rsq=T)
+coef(highModel)
+semPaths(highModel, 'std')
