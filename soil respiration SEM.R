@@ -41,3 +41,48 @@ highModel <- sem(pathModel, data=highData)
 summary(highModel, standardized=T, rsq=T)
 coef(highModel)
 semPaths(highModel, 'std')
+
+
+###try using just the last date, instead of means across dates
+lastData <- rawData%>%
+  filter(month==8, day==28)
+
+#low N addition model
+lowLastData <- lastData%>%
+  filter(treatment!=1.6)
+
+lowLastModel <- sem('soil_respiration ~ treatment + soil_moisture + soil_temperature + root_biomass
+  root_biomass ~ treatment', data=lowLastData)
+summary(lowLastModel, standardized=T, rsq=T)
+standardizedSolution(lowLastModel)
+semPaths(lowLastModel, 'std')
+
+#high N addition model
+highLastData <- lastData%>%
+  filter(treatment!=0.4)
+
+highLastModel <- sem('soil_respiration ~ treatment + soil_moisture + soil_temperature + root_biomass
+  root_biomass ~ treatment',
+                      data=highLastData)
+summary(highLastModel, standardized=T, rsq=T)
+standardizedSolution(highLastModel)
+semPaths(highLastModel, 'std')
+
+
+#correlation between belowground biomass and soil respiration
+cor(lowLastData$root_biomass, lowLastData$soil_respiration)
+cor(highLastData$root_biomass, highLastData$soil_respiration)
+
+
+
+
+test <- sem('soil_respiration ~ treatment + soil_moisture + soil_temperature + root_biomass
+  root_biomass ~ treatment',
+                     data=highLastData)
+summary(test, standardized=T, rsq=T)
+standardizedSolution(test)
+semPaths(test, 'std')
+
+
+
+
