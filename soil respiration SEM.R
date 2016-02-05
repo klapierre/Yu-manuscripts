@@ -1,5 +1,6 @@
 library(lavaan)
 library(semPlot)
+library(usdm)
 library(tidyr)
 library(dplyr)
 
@@ -53,7 +54,7 @@ lowLastData <- lastData%>%
 
 lowLastModel <- sem('soil_respiration ~ treatment + soil_moisture + soil_temperature + root_biomass
   root_biomass ~ treatment', data=lowLastData)
-summary(lowLastModel, standardized=T, rsq=T)
+summary(lowLastModel, standardized=T, rsq=T, modindices=T)
 standardizedSolution(lowLastModel)
 semPaths(lowLastModel, 'std')
 
@@ -62,9 +63,11 @@ highLastData <- lastData%>%
   filter(treatment!=0.4)
 
 highLastModel <- sem('soil_respiration ~ treatment + soil_moisture + soil_temperature + root_biomass
-  root_biomass ~ treatment',
+                      root_biomass ~ treatment
+                      root_biomass ~~ soil_moisture
+                      root_biomass ~~ soil_temperature',
                       data=highLastData)
-summary(highLastModel, standardized=T, rsq=T)
+summary(highLastModel, standardized=T, rsq=T, modindices=T)
 standardizedSolution(highLastModel)
 semPaths(highLastModel, 'std')
 
@@ -73,15 +76,32 @@ semPaths(highLastModel, 'std')
 cor(lowLastData$root_biomass, lowLastData$soil_respiration)
 cor(highLastData$root_biomass, highLastData$soil_respiration)
 
+plot(lowLastData$root_biomass, lowLastData$soil_respiration)
+plot(highLastData$root_biomass, highLastData$soil_respiration)
 
 
 
-test <- sem('soil_respiration ~ treatment + soil_moisture + soil_temperature + root_biomass
-  root_biomass ~ treatment',
-                     data=highLastData)
-summary(test, standardized=T, rsq=T)
-standardizedSolution(test)
-semPaths(test, 'std')
+#PCA of soil variables
+pcaLowLastData <- lowLastData%>%
+  select(-year, -month, -day, -plot, -treatment)
+  
+summary(pcaLow <- prcomp(pcaLowLastData, center=T, scale.=T))
+print(pcaLow)
+
+
+
+#collinearity
+vif(pcaLowLastData)
+cor(lowLastData$root_biomass, lowLastData$soil_moisture)
+cor(lowLastData$root_biomass, lowLastData$soil_temperature)
+cor(lowLastData$soil_temperature, lowLastData$soil_moisture)
+cor(highLastData$root_biomass, highLastData$soil_moisture)
+cor(highLastData$root_biomass, highLastData$soil_temperature)
+cor(highLastData$soil_temperature, highLastData$soil_moisture)
+
+
+
+
 
 
 
