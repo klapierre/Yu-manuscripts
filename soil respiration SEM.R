@@ -1,6 +1,5 @@
 library(lavaan)
 library(semPlot)
-library(usdm)
 library(tidyr)
 library(dplyr)
 
@@ -63,10 +62,8 @@ highLastData <- lastData%>%
   filter(treatment!=0.4)
 
 highLastModel <- sem('soil_respiration ~ treatment + soil_moisture + soil_temperature + root_biomass
-                      root_biomass ~ treatment
-                      root_biomass ~~ soil_moisture
-                      root_biomass ~~ soil_temperature',
-                      data=highLastData)
+                      root_biomass ~ treatment',
+                      data=highLastData, fixed.x=F)
 summary(highLastModel, standardized=T, rsq=T, modindices=T)
 standardizedSolution(highLastModel)
 semPaths(highLastModel, 'std')
@@ -91,18 +88,10 @@ print(pcaLow)
 
 
 #collinearity
-vif(pcaLowLastData)
 cor(lowLastData$root_biomass, lowLastData$soil_moisture)
 cor(lowLastData$root_biomass, lowLastData$soil_temperature)
 cor(lowLastData$soil_temperature, lowLastData$soil_moisture)
 cor(highLastData$root_biomass, highLastData$soil_moisture)
 cor(highLastData$root_biomass, highLastData$soil_temperature)
 cor(highLastData$soil_temperature, highLastData$soil_moisture)
-
-
-
-
-
-
-
 
